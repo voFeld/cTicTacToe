@@ -1,21 +1,15 @@
 // TODO
 // Create a Player class that has one attribute, `name`.
+
 var Player = function(name){
   this.name = name;
 };
-// Verify that you can create a new instance of Player:
-//
-p = new Player("Mary");
-p.name
-// Mary
-//
-var Player = undefined; /* TODO replace undefined with class definition */
 
 // TicTacToe class is the main class of the game. The constructor should take
 // two arguments, the two names of the players.
-var TicTacToe = function (/* TODO fill in arguments */) {
-  this.player1 = new Player(/* TODO */);
-  this.player2 = new Player(/* TODO */);
+var TicTacToe = function (player1, player2) {
+  this.player1 = new Player(player1);
+  this.player2 = new Player(player2);
 
   this.reset();
 };
@@ -23,48 +17,33 @@ var TicTacToe = function (/* TODO fill in arguments */) {
 // TODO
 // Reset the game with a new board and player 1 as the current player.
 TicTacToe.prototype.reset = function () {
-}
+  this.currentPlayer = this.player1.name;
+  this.board = new Board();
+};
 
-// Now, verify that you can create an instance of TicTacToe:
-//
-// game = new TicTacToe("John", "Mary");
-// game.player1.name
-// // John
-// game.player2.name
-// // Mary
-// game.board
-// // array of arrays representing board state
+
 
 // At this point, you should scroll down and implement
 // TicTacToe.prototype.print, which prints the state of the board. This will be
 // necessary to play the game and to debug our program as we write it!
 //
-// Once you've done that, this should work:
-//
-// game = new TicTacToe("John", "Mary");
-// game.board.print()
-//
-// 123
-// 456
-// 789
 
-// TODO
 // Print the board and the current player's name.
-TicTacToe.prototype.print = function () {
+TicTacToe.prototype.print = function (x, y, pos, char) {
+  this.board.print(x, y, pos, char);
+  // console.log('It\'s ' + this.currentPlayer + '\'s turn!');
 }
 
-// game = new TicTacToe("John", "Mary");
-// game.print()
-//
-// 123
-// 456
-// 789
-// It's John's turn!
 
 // TODO
 // Switch this.currentPlayer to the other player.
 TicTacToe.prototype.switchCurrentPlayer = function () {
-}
+  if (this.currentPlayer === this.player1.name) {
+    this.currentPlayer = this.player2.name;
+  } else {
+    this.currentPlayer = this.player1.name;
+  }
+};
 
 // game = new TicTacToe("John", "Mary");
 // game.print()
@@ -85,7 +64,12 @@ TicTacToe.prototype.switchCurrentPlayer = function () {
 // TODO
 // Should return "X" if the current turn is player 1's. Return "O" otherwise.
 TicTacToe.prototype.currentChar = function () {
-}
+  if (this.currentPlayer === this.player1.name) {
+    return 'X';
+  } else {
+    return 'O';
+  }
+};
 
 // game = new TicTacToe("John", "Mary");
 // game.currentChar();
@@ -108,7 +92,7 @@ TicTacToe.prototype.currentChar = function () {
 //
 // If the game is now tied, print this out.
 //
-TicTacToe.prototype.play = function (position) {
+TicTacToe.prototype.play = function (rowLength, cellLength, xPos, yPos) {
 
   // TODO, using the functions you implemented above:
   // - Check if the game is over. Return if it is.
@@ -116,49 +100,28 @@ TicTacToe.prototype.play = function (position) {
   // - Check for a winner after position is played.
   // - Switch the current player to the next one.
   // - Print the state of the board and next person's turn.
-}
+  var position = this.board.draw(rowLength, cellLength, xPos, yPos);
+  var winner = this.board.winner();
 
-// You should now be able to play the game. Congrats, you're done! (But you may
-// have some bugs in the edge-cases. Seek them out).
-//
-// g = new TicTacToe("John", "Mary")
-// g.print()
-//
-// 123
-// 456
-// 789
-// It is John's turn!
-//
-// g.play(1)
-//
-// X23
-// 456
-// 789
-// It is Mary's turn!
-//
-// g.play(2)
-//
-// XO3
-// 456
-// 789
-// It is John's turn!
-//
-// g.play(5)
-//
-// XO3
-// 4X6
-// 789
-// It is Mary's turn!
-//
-// g.play(3)
-//
-// XOO
-// 4X6
-// 789
-// It is John's turn!
-//
-// g.play(9)
-// Wow! John has won!
+  if (winner === 'X' || winner === 'O' || winner === 'tie') {
+    if (winner === 'X') {
+      $('.winner').html('Wow, ' + this.player1.name + ' is won');
+    } else {
+      if (winner === 'O') {
+        $('.winner').html('Wow, ' + this.player1.name + ' is won');
+      } else {
+        $('.winner').html('You have a tie');
+      }
+    }
+    return;
+  } else {
+    this.board.play(this.currentChar(), position);
+    console.log(this.currentChar());
+    this.print(xPos, yPos, position, this.currentChar());
+    this.switchCurrentPlayer();
+  }
+};
+
 
 // The Board class holds the state of the board. To make it simple, the starting
 // state is the positions 1 to 9.
@@ -166,35 +129,23 @@ var Board = function () {
   this.board = [["1", "2", "3"],
                 ["4", "5", "6"],
                 ["7", "8", "9"]];
-}
-
-// TODO
-// Prints the board state to the console. At the beginning, the board should
-// just show the positions:
-//
-// 123
-// 456
-// 789
-//
-// As moves are made, these positions turn into Xs and Os:
-//
-// 1X3
-// 456
-// 78O
-//
-// As a challenge, print out a better-looking board like a real tic-tac-toe
-// game.
-//
-// This is a fun exercise but not part of the core OO lesson. Don't spend too
-// much time on this. Ask for help if you get stuck on this part.
-//
-// As a harder challenge, write the board in HTML and use jQuery for user input.
-//
-Board.prototype.print = function () {
 };
 
-// TODO: This is the second-hardest function in this game. If you want to
-// challenge yourself, delete the code and see if you can write it yourself.
+Board.prototype.draw = function (rowLength, cellLength, xPos, yPos) {
+  var position = this.board[yPos][xPos];
+  // console.log(position);
+  return position;
+};
+
+Board.prototype.print = function (x, y, pos, char) {
+  // for(var i = 0; i < this.board.length; i++) {
+  //    console.log(this.board[i]);
+  // }
+  console.log(char);
+  this.board[y][x] = char;
+  $('td').eq(pos-1).html(char);
+};
+
 //
 // Given a character ("X" or "O") and position 1 to 9, set board to new state.
 // Print out warning messages for invalid characters, positions, and
@@ -224,10 +175,8 @@ Board.prototype.play = function (char, position) {
   return;
 };
 
-// TODO: This is the hardest function in this game. If you want to challenge
-// yourself, delete the code and see if you can write it yourself. There are
-// several ways of writing this function.
-//
+
+
 // Returns "X" or "O" if one of the players have won.
 // Returns "tie" if the game is done with no winner.
 // Return undefined if the game is still in progress.
@@ -283,3 +232,12 @@ Board.prototype.winner = function () {
     return;
   }
 };
+
+
+var game = new TicTacToe('First Player', 'Second Player');
+$('tr').on('click', function (e) {
+  var row = Array.prototype.slice.apply($('tr'));
+  var cell = Array.prototype.slice.apply($('td'));
+  // console.log(cell.length, row.length, $(e.currentTarget).index(), $(e.target).index());
+  game.play(row.length, cell.length, $(e.target).index(), $(e.currentTarget).index());
+});
